@@ -36,18 +36,19 @@ public class GlobalExceptionHandling {
   }
 
   @ExceptionHandler(LazyInitializationException.class)
-    public ResponseEntity<ProblemDetail> handleLazyInitializationException(LazyInitializationException ex) {
+  public ResponseEntity<ProblemDetail> handleLazyInitializationException(LazyInitializationException ex) {
         return generateResponseEntity( ex.getMessage(), INTERNAL_SERVER_ERROR, "Failed to load lazy data");
-    }
+  }
 
   @ExceptionHandler(PatientNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handlePatientNotFoundException(PatientNotFoundException ex) {
+  public ResponseEntity<ProblemDetail> handlePatientNotFoundException(PatientNotFoundException ex) {
         return generateResponseEntity( ex.getMessage(), NOT_FOUND, PATIENT_NOT_FOUND_BY_ID);
-    }
+  }
+
   @ExceptionHandler(EmailAlreadyExistException.class)
-    public ResponseEntity<ProblemDetail> handlePatientEmailAlreadyExistException(EmailAlreadyExistException ex) {
+  public ResponseEntity<ProblemDetail> handlePatientEmailAlreadyExistException(EmailAlreadyExistException ex) {
         return generateResponseEntity( ex.getMessage(), BAD_REQUEST, PATIENT_EMAIL_ALREADY_EXISTS);
-    }
+  }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ProblemDetail> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
