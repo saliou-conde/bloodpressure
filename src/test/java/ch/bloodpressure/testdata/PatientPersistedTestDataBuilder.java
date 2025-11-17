@@ -81,7 +81,8 @@ public class PatientPersistedTestDataBuilder {
     }
 
     private String randomEmail() {
-        var user = "user" + UUID.randomUUID().toString().substring(0, 8);
+        var name = randomFirstName().toLowerCase() + "." + randomLastName().toLowerCase();
+        var user = name+ UUID.randomUUID().toString().substring(0, 8);
         return user + "@gmail.com";
     }
 }
