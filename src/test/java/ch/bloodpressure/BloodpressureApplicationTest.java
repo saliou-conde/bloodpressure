@@ -1,4 +1,4 @@
-import ch.bloodpressure.BloodpressureApplication;
+package ch.bloodpressure;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
