@@ -53,12 +53,12 @@ public class BloodpressureServiceImpl implements BloodpressureService {
     @Transactional
     public BloodpressureResponseDto addBloodpressure(BloodpressureRequestDto requestDto) {
         log.info("Start addBloodpressure( {} )...", requestDto);
-        String patientId = requestDto.patientId();
+        var patientId = requestDto.patientId();
         var patient = patientService.getPatientById(patientId, "Cannot get patient:: ");
-        Bloodpressure bloodpressure = bloodpressureMapper.toBloodpressure(requestDto);
+        var bloodpressure = bloodpressureMapper.toBloodpressure(requestDto);
         bloodpressure.setPatient(patient);
         bloodpressure.setMap(calculateMap(bloodpressure.getSystole(), bloodpressure.getDiastole()));
-        Bloodpressure saved = bloodpressureRepository.save(bloodpressure);
+        var saved = bloodpressureRepository.save(bloodpressure);
         log.info("Bloodpressure created with id:: {}", bloodpressure.getId());
         log.info("addBloodpressure finished successfully");
         return bloodpressureMapper.fromBloodpressure(saved);

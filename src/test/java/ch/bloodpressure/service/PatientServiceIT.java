@@ -5,6 +5,7 @@ import ch.bloodpressure.domain.Bloodpressure;
 import ch.bloodpressure.domain.Patient;
 import ch.bloodpressure.exception.EmailAlreadyExistException;
 import io.restassured.RestAssured;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,11 +15,13 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class PatientServiceIT extends AbstractBloodpressureIT {
+@Slf4j
+class PatientServiceIT extends AbstractBloodpressureIT {
 
     @BeforeEach
     void setup() {
         RestAssured.port = port;
+        log.info("Running port: {}", port);
     }
 
     @Test
@@ -153,7 +156,7 @@ public class PatientServiceIT extends AbstractBloodpressureIT {
                 );
 
         assertThat(fetchedPatient.bloodpressureRequestDtoList())
-                .hasSize(0);
+                .isEmpty();
 
     }
 

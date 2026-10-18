@@ -36,16 +36,16 @@ public class PatientServiceImpl implements PatientService {
     @Transactional(readOnly = true)
     public List<PatientResponseDto> getPatients() {
         log.info("Starting getPatients()...");
-        var patients = patientRepository.findAllPatientsOnly();
+        var patients = patientRepository.findOnlyPatients();
         if (patients.isEmpty()) {
-            log.warn("No patients found in the database.");
+            log.warn("No patient(s) found in the database.");
             throw new PatientNotFoundException("No patients found in the database.");
         }
         var patientResponses = patients.stream()
                 .map(patientMapper::fromPatientWithoutMeasurements)
                 .toList();
         log.info("Found {} patients in the database.", patientResponses.size());
-        log.info("Started getPatients() successfully.");
+        log.info("Finished getPatients() successfully.");
         return patientResponses;
     }
 
@@ -56,7 +56,7 @@ public class PatientServiceImpl implements PatientService {
         var patient = getPatientById(id, "Cannot get patient:: ");
         log.info("Found patient with ID: {}", patient.getId());
         var patientResponse = generateResponseDto(patient, patient.getBloodpressure());
-        log.info("Started getPatientCorrect(String id) successfully.");
+        log.info("Finished getPatientCorrect(String id) successfully.");
         return patientResponse;
     }
 
@@ -73,7 +73,7 @@ public class PatientServiceImpl implements PatientService {
         patientRepository.save(patient);
         log.info("Created patient with ID: {}", patient.getId());
         var result = generateResponseDto(patient);
-        log.info("Started createPatient(PatientRequestDto patientRequestDto) successfully.");
+        log.info("Finished createPatient(PatientRequestDto patientRequestDto) successfully.");
         return result;
     }
 
@@ -87,7 +87,7 @@ public class PatientServiceImpl implements PatientService {
         patient.setIsDeleted(true);
         patientRepository.save(patient);
         log.info("Deleted patient with ID: {}", patient.getId());
-        log.info("Started deletePatient(String id) successfully.");
+        log.info("Finished deletePatient(String id) successfully.");
     }
 
     @Override
@@ -97,7 +97,7 @@ public class PatientServiceImpl implements PatientService {
         mergePatient(existingPatient, patient);
         patientRepository.save(existingPatient);
         log.info("Updated patient with ID: {}", existingPatient.getId());
-        log.info("Started updatePatient(PatientRequestDto patient, String id) successfully.");
+        log.info("Finished updatePatient(PatientRequestDto patient, String id) successfully.");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class PatientServiceImpl implements PatientService {
         log.info("Starting deleteAll()...");
         bloodpressureRepository.markAllBloodpressureAsDeleted();
         patientRepository.markAllPatientsAsDeleted();
-        log.info("Started deleteAll() successfully.");
+        log.info("Finished deleteAll() successfully.");
     }
 
     public Patient getPatientById(final String id, final String errorMessage) {
@@ -125,7 +125,7 @@ public class PatientServiceImpl implements PatientService {
                 addressDto.zipCode()
         ));
         var result = addressMapper.toAddressDto(address);
-        log.info("Started createAddress(AddressDto addressDto) successfully.");
+        log.info("Finished createAddress(AddressDto addressDto) successfully.");
         return result;
     }
 

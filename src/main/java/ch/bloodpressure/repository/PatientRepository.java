@@ -42,7 +42,7 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
             SELECT p
             FROM Patient p
             """)
-    List<Patient> findAllPatientsOnly();
+    List<Patient> findOnlyPatients();
 
     boolean existsByEmailIgnoreCase(String email);
 

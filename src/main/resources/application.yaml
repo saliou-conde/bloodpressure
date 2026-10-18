@@ -19,3 +19,6 @@ spring:
 server:
   port: 9999
 
+external:
+  json:
+    path: ${JSON_PATH}

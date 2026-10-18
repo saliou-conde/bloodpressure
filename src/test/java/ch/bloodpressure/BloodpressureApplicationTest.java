@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
-public class BloodpressureApplicationTest {
+class BloodpressureApplicationTest {
 
     @Test
     void main_shouldLogStartupMessages() {

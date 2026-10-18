@@ -1,16 +1,21 @@
 package ch.bloodpressure.testdata;
 
-import ch.bloodpressure.domain.*;
-import ch.bloodpressure.dto.*;
+import ch.bloodpressure.domain.Bloodpressure;
+import ch.bloodpressure.domain.Patient;
+import ch.bloodpressure.dto.PatientRequestDto;
+import ch.bloodpressure.dto.PatientResponseDto;
 import ch.bloodpressure.dto.mapper.PatientMapper;
 import ch.bloodpressure.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
-import org.instancio.*;
+import org.instancio.Instancio;
+import org.instancio.Select;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import static java.lang.Math.random;
+import static java.util.UUID.randomUUID;
 
 @Component
 @RequiredArgsConstructor
@@ -70,19 +75,19 @@ public class PatientPersistedTestDataBuilder {
 
     private String randomFirstName() {
         var names = new String[]{"Marx", "Anna", "John", "Maria", "David", "Emma"};
-        var idx = (int) (Math.random() * names.length);
+        var idx = (int) (random() * names.length);
         return names[idx];
     }
 
     private String randomLastName() {
         var names = new String[]{"Nero", "Smith", "Doe", "Müller", "Brown", "Garcia"};
-        var idx = (int) (Math.random() * names.length);
+        var idx = (int) (random() * names.length);
         return names[idx];
     }
 
     private String randomEmail() {
         var name = randomFirstName().toLowerCase() + "." + randomLastName().toLowerCase();
-        var user = name+ UUID.randomUUID().toString().substring(0, 8);
+        var user = name+ randomUUID().toString().substring(0, 8);
         return user + "@gmail.com";
     }
 }

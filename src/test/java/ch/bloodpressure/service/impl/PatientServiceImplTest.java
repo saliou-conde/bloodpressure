@@ -83,7 +83,7 @@ class PatientServiceImplTest {
 
         when(patientMapper.fromPatientWithoutMeasurements(patient1)).thenReturn(response1);
         when(patientMapper.fromPatientWithoutMeasurements(patient2)).thenReturn(response2);
-        when(patientRepository.findAllPatientsOnly()).thenReturn(patientList);
+        when(patientRepository.findOnlyPatients()).thenReturn(patientList);
 
         // When
         var result = patientService.getPatients();
@@ -99,7 +99,7 @@ class PatientServiceImplTest {
     @Test
     void getPatients_shouldReturnEmptyList() {
         // Given
-        when(patientRepository.findAllPatientsOnly()).thenReturn(List.of());
+        when(patientRepository.findOnlyPatients()).thenReturn(List.of());
 
         // When & Then
         assertThatThrownBy(() -> patientService.getPatients())
