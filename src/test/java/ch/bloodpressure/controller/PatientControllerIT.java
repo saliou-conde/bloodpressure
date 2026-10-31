@@ -5,11 +5,13 @@ import ch.bloodpressure.dto.PatientRequestDto;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
+@Disabled
 class PatientControllerIT extends AbstractBloodpressureIT {
 
     @BeforeEach

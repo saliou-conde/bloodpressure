@@ -1,12 +1,15 @@
 package ch.bloodpressure.testdata;
 
 import ch.bloodpressure.domain.Bloodpressure;
+import ch.bloodpressure.domain.Gender;
 import ch.bloodpressure.domain.Patient;
+import ch.bloodpressure.dto.AddressDto;
 import ch.bloodpressure.dto.PatientRequestDto;
 import ch.bloodpressure.dto.PatientResponseDto;
 import ch.bloodpressure.dto.mapper.PatientMapper;
 import ch.bloodpressure.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.instancio.Instancio;
 import org.instancio.Select;
 import org.springframework.stereotype.Component;
@@ -19,6 +22,7 @@ import static java.util.UUID.randomUUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PatientPersistedTestDataBuilder {
 
     private final PatientRepository patientRepository;
@@ -31,11 +35,25 @@ public class PatientPersistedTestDataBuilder {
     }
 
     public PatientRequestDto randomPatientRequestDto() {
-        return Instancio.of(PatientRequestDto.class)
-                .set(Select.field(PatientRequestDto::firstName), randomFirstName())
-                .set(Select.field(PatientRequestDto::lastName), randomLastName())
-                .set(Select.field(PatientRequestDto::email), randomEmail())
-                .create();
+        var gender = Gender.values()[(int) (Math.random() * Gender.values().length)];
+
+        var address = new AddressDto(
+                "Teststraße " + (int) (Math.random() * 100),
+                "Berlin",
+                "Berlin",
+                "12345"
+        );
+        var patientRequestDto = new PatientRequestDto(
+                randomFirstName(),
+                randomLastName(),
+                randomEmail(),
+                gender,
+                "1987-09-22", // gültiges ISO-Datum
+                address
+        );
+        log.info("PatientRequestDto: {}", patientRequestDto);
+
+        return patientRequestDto;
     }
 
     public PatientRequestDto createPatientRequestDto(String firstName, String lastName, String email) {

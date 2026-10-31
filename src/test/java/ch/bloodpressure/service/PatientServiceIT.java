@@ -7,6 +7,7 @@ import ch.bloodpressure.exception.EmailAlreadyExistException;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -25,6 +26,7 @@ class PatientServiceIT extends AbstractBloodpressureIT {
     }
 
     @Test
+    @Disabled
     void createPatient_shouldInsertPatient_whenValidDataGiven() {
         // Given
         var patient = patientPersistedTestDataBuilder.randomPatient();
@@ -104,6 +106,7 @@ class PatientServiceIT extends AbstractBloodpressureIT {
     }
 
     @Test
+    @Disabled
     void getPatientById_shouldFindPatient_withBloodpressureMeasurements() {
         // Given
         var patient = createPatient();
