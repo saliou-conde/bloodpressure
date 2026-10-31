@@ -1,0 +1,124 @@
+<div class="container mt-4">
+  <h2 class="mb-3 text-primary">Patient overview</h2>
+
+  <div class="row">
+    <!-- Patientenliste -->
+    <div class="col-lg-6 mb-4">
+      <div class="card p-3">
+        <h5>Add New Patient</h5>
+        <form (ngSubmit)="createPatient()">
+          <div class="mb-2">
+            <input class="form-control" placeholder="First Name" [(ngModel)]="newPatient.firstName" name="firstName" required>
+          </div>
+          <div class="mb-2">
+            <input class="form-control" placeholder="Last Name" [(ngModel)]="newPatient.lastName" name="lastName" required>
+          </div>
+          <div class="mb-2">
+            <input type="email" class="form-control" placeholder="Email" [(ngModel)]="newPatient.email" name="email" required>
+          </div>
+          <div class="mb-2">
+            <select class="form-control" [(ngModel)]="newPatient.gender" name="gender" required>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <input type="date" class="form-control" placeholder="Birth Date" [(ngModel)]="newPatient.birthDate" name="birthDate" required>
+          </div>
+          <button class="btn btn-success btn-sm" [disabled]="creatingPatient">Create</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      @if (loadingPatients) {
+      <div class="text-center my-3">
+        <div class="spinner-border" role="status"></div>
+      </div>
+      }
+      @if (!loadingPatients) {
+      <table class="table table-hover">
+        <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Age</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for (p of patients; track p.id) {
+        <tr
+          (click)="selectPatient(p)"
+          [class.table-active]="selectedPatient?.id === p.id"
+          style="cursor: pointer"
+        >
+          <td>{{ p.firstName }} {{ p.lastName }}</td>
+          <td>{{ p.email }}</td>
+          <td>{{ p.age }}</td>
+        </tr>
+        }
+        </tbody>
+      </table>
+      }
+
+    </div>
+  </div>
+  @if (selectedPatient) {
+  <div class="mt-4 card p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h5>{{ formatName(selectedPatient) }}</h5>
+        <small class="text-muted">
+          {{ selectedPatient.email }} · {{ selectedPatient.gender }} · {{ selectedPatient.age }} Years . {{selectedPatient.address.street}}
+        </small>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" (click)="clearSelection()">
+        Clear Selection
+      </button>
+    </div>
+  </div>
+  }
+    @if (loadingBloodpressures) {
+    <div class="text-center my-3">
+      <div class="spinner-border" role="status"></div>
+    </div>
+    }
+
+  @if (!loadingBloodpressures && bloodpressures.length > 0) {
+  <table class="table table-striped mt-3">
+    <thead class="table-light">
+    <tr>
+      <th>#</th>
+      <th>Date</th>
+      <th>Systole</th>
+      <th>Diastole</th>
+      <th>MAP</th>
+      <th>Heart Rate</th>
+    </tr>
+    </thead>
+    <tbody>
+    @for (bp of bloodpressures; track bp.id; let i = $index) {
+    <tr>
+      <td>{{ i + 1 }}</td>
+      <td>{{ bp.createdAt | date: 'short' }}</td>
+      <td>{{ bp.systole }}</td>
+      <td>{{ bp.diastole }}</td>
+      <td>{{ bp.map ?? '-' }}</td>
+      <td>{{ bp.heartRate }}</td>
+    </tr>
+    }
+    </tbody>
+  </table>
+  }
+
+  @if (!loadingBloodpressures && bloodpressures.length === 0) {
+  <div class="alert alert-info mt-3 mb-0">
+    No measurements found.
+  </div>
+  } @else {
+  <table class="table table-striped mt-3">
+    <!-- e.g. @for (bp of bloodpressures; track bp.id) { … } -->
+  </table>
+  }
+</div>
+
