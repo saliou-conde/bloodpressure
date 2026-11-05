@@ -82,7 +82,72 @@
     <div class="text-center my-3">
       <div class="spinner-border" role="status"></div>
     </div>
-    }
+  }
+
+  @if (selectedPatient) {
+  <div class="card p-3 mt-3">
+
+    <h5 class="text-primary mb-3">
+      Add Bloodpressure Measurement
+    </h5>
+
+    <form (ngSubmit)="createBloodpressure()">
+
+      <div class="row">
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Systole (mmHg)</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="newBloodpressure.systole"
+            name="systole"
+            min="1"
+            required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Diastole (mmHg)</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="newBloodpressure.diastole"
+            name="diastole"
+            min="1"
+            required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Heart Rate (bpm)</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="newBloodpressure.heartRate"
+            name="heartRate"
+            min="1"
+            required>
+        </div>
+
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-success btn-sm"
+        [disabled]="creatingBloodpressure">
+
+        @if (creatingBloodpressure) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        Saving...
+        } @else {
+        Add Measurement
+        }
+
+      </button>
+
+    </form>
+
+  </div>
+  }
 
   @if (!loadingBloodpressures && bloodpressures.length > 0) {
   <table class="table table-striped mt-3">

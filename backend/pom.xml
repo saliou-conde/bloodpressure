@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ch</groupId>
-	<artifactId>bloodpressure</artifactId>
+	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>bloodpressure</name>
+	<name>backend</name>
 	<description>Blood Pressure Manager</description>
 	<url/>
 	<licenses>

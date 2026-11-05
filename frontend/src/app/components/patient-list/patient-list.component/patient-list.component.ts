@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BloodpressureResponseDto } from '../../../models/bloodpressure-response-dto';
+import { BloodpressureRequestDto } from '../../../models/bloodpressure-request-dto';
 import { PatientRequestDto } from '../../../models/patient-request-dto';
 import { PatientViewModel } from '../../../models/patient-view-model';
 import { BloodpressureService } from '../../../services/bloodpressure/bloodpressure.service';
@@ -102,33 +103,99 @@ export class PatientListComponent implements OnInit {
   }
 
   createPatient(): void {
-    if (!this.newPatient.firstName || 
-      !this.newPatient.lastName || 
-      !this.newPatient.email || 
-      !this.newPatient.birthDate || 
-      !this.newPatient.address) 
+    if (!this.newPatient.firstName ||
+      !this.newPatient.lastName ||
+      !this.newPatient.email ||
+      !this.newPatient.birthDate ||
+      !this.newPatient.address)
       return;
     this.creatingPatient = true;
     this.patientService.createPatient(this.newPatient)
       .pipe(finalize(() => (this.creatingPatient = false)))
       .subscribe({
         next: () => {
-          this.newPatient = { 
-            firstName: '', 
-            lastName: '', 
-            email: '', 
-            gender: 'MALE', 
+          this.newPatient = {
+            firstName: '',
+            lastName: '',
+            email: '',
+            gender: 'MALE',
             birthDate: '',
             address: {
               street: '',
               city: '',
               state: '',
               zipCode: ''
-            } 
+            }
       };
           this.loadPatients();
         },
         error: (err) => console.error('Fehler beim Erstellen', err)
+      });
+  }
+
+  // Neues Blutdruckformular
+  newBloodpressure = {
+    systole: 0,
+    diastole: 0,
+    heartRate: 0
+  };
+
+  creatingBloodpressure = false;
+
+  createBloodpressure(): void {
+
+    if (!this.selectedPatient) {
+      return;
+    }
+
+    if (
+      this.newBloodpressure.systole <= 0 ||
+      this.newBloodpressure.diastole <= 0 ||
+      this.newBloodpressure.heartRate <= 0
+    ) {
+      return;
+    }
+
+    const request: BloodpressureRequestDto = {
+      patientId: this.selectedPatient.id,
+      systole: this.newBloodpressure.systole,
+      diastole: this.newBloodpressure.diastole,
+      heartRate: this.newBloodpressure.heartRate,
+      map: null
+    };
+
+    this.creatingBloodpressure = true;
+
+    this.bpService.createBloodpressure(request)
+      .pipe(finalize(() => {
+        this.creatingBloodpressure = false;
+      }))
+      .subscribe({
+
+        next: (createdBloodpressure) => {
+
+          // Neue Messung direkt zur Tabelle hinzufügen
+          this.bloodpressures = [
+            createdBloodpressure,
+            ...this.bloodpressures
+          ];
+
+          // Formular zurücksetzen
+          this.newBloodpressure = {
+            systole: 0,
+            diastole: 0,
+            heartRate: 0
+          };
+
+        },
+
+        error: (err) => {
+          console.error(
+            'Fehler beim Erstellen der Blutdruckmessung',
+            err
+          );
+        }
+
       });
   }
 }

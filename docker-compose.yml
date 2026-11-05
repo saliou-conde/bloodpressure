@@ -2,8 +2,10 @@ version: '3.9'
 
 services:
   backend:
-    image: sconde87/bloodpressure:latest
+    image: sconde87/bloodpressure-backend:latest
     container_name: bloodpressure-backend
+    ports:
+      - "9999:9999"
     env_file:
       - .env
     restart: unless-stopped

@@ -2,7 +2,6 @@ package ch.bloodpressure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -11,15 +10,17 @@ public class CorsConfig {
 
     private static final String[] URLS = {
             "http://localhost:4200", // Angular Dev
-            "https://bloodpressure.ch", // Prod
-            "https://www.bloodpressure.ch" // Prod
+            "http://localhost:3000", // Angular Dev
+            "https://bloodpressure.ch", // Productive
+            "https://www.bloodpressure.ch", // Productive
+            "http://139.162.135.188:3000" // Angular Linode Server
     };
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(@NonNull CorsRegistry registry) {
+            public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
                         .allowedOrigins(URLS) // your frontend URL
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
