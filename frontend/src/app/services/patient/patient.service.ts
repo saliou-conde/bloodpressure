@@ -4,12 +4,14 @@ import { Observable, map } from 'rxjs';
 import { PatientRequestDto } from '../../models/patient-request-dto';
 import { PatientResponseDto } from '../../models/patient-response-dto';
 import { PatientViewModel } from '../../models/patient-view-model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
-  private readonly baseUrl = 'http://localhost:9999/api/v1/patients';
+
+  private readonly baseUrl = `${environment.backendUrl}/patients`;
 
   constructor(private readonly http: HttpClient) {}
 

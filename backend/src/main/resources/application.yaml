@@ -7,7 +7,6 @@ spring:
 
   jpa:
     open-session-in-view: false
-    #database: H2
     show-sql: true
     hibernate:
       ddl-auto: update

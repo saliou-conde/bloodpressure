@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BloodpressureResponseDto } from '../../models/bloodpressure-response-dto';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BloodpressureService {
-  private readonly baseUrl = 'http://localhost:9999/api/v1/bloodpressure';
+
+  private readonly baseUrl = `${environment.backendUrl}/bloodpressure`;
 
   constructor(private http: HttpClient) {}
 
