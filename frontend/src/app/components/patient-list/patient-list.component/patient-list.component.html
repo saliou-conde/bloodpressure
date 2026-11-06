@@ -91,7 +91,7 @@
       Add Bloodpressure Measurement
     </h5>
 
-    <form (ngSubmit)="createBloodpressure()">
+    <form (ngSubmit)="saveBloodpressure()">
 
       <div class="row">
 
@@ -139,7 +139,7 @@
         <span class="spinner-border spinner-border-sm me-1"></span>
         Saving...
         } @else {
-        Add Measurement
+        {{ editingBloodpressureId ? 'Update Measurement' : 'Add Measurement' }}
         }
 
       </button>
@@ -159,6 +159,8 @@
       <th>Diastole</th>
       <th>MAP</th>
       <th>Heart Rate</th>
+      <th>Status</th>
+      <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -170,10 +172,49 @@
       <td>{{ bp.diastole }}</td>
       <td>{{ bp.map ?? '-' }}</td>
       <td>{{ bp.heartRate }}</td>
+      <td>
+        <span class="{{ getStatusClass(bp) }}">
+          {{ getStatus(bp) }}
+        </span>
+      </td>
+      <td>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary me-2"
+          (click)="editBloodpressure(bp)">
+          ✏️ Edit
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          (click)="deleteBloodpressure(bp.id)">
+          🗑 Delete
+        </button>
+      </td>
+
     </tr>
     }
     </tbody>
   </table>
+  }
+
+  @if (bloodpressures.length > 0) {
+
+  <div class="card p-3 mt-4">
+
+    <h5 class="text-primary">
+      Blood Pressure Trend
+    </h5>
+
+    <canvas
+      baseChart
+      [data]="lineChartData"
+      [options]="lineChartOptions"
+      [type]="'line'">
+    </canvas>
+
+  </div>
+
   }
 
   @if (!loadingBloodpressures && bloodpressures.length === 0) {

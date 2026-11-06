@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -58,6 +60,7 @@ public class BloodpressureServiceImpl implements BloodpressureService {
         var bloodpressure = bloodpressureMapper.toBloodpressure(requestDto);
         bloodpressure.setPatient(patient);
         bloodpressure.setMap(calculateMap(bloodpressure.getSystole(), bloodpressure.getDiastole()));
+        bloodpressure.setCreatedAt(LocalDateTime.now(ZoneId.of("Europe/Berlin")));
         var saved = bloodpressureRepository.save(bloodpressure);
         log.info("Bloodpressure created with id:: {}", bloodpressure.getId());
         log.info("addBloodpressure finished successfully");
@@ -70,6 +73,7 @@ public class BloodpressureServiceImpl implements BloodpressureService {
         var bloodpressure =
                 getBloodPressureByIdOrThrow(id, "Cannot update bloodpressure:: ");
         mergeBloodpressure(bloodpressure, requestDto);
+        bloodpressure.setUpdatedAt(LocalDateTime.now(ZoneId.of("Europe/Berlin")));
         var result = bloodpressureRepository.save(bloodpressure);
         log.info("Bloodpressure updated with id:: {}", result.getId());
         log.info("End updateBloodpressure(BloodpressureRequestDto request) successfully.");

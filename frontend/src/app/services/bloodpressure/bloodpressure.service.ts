@@ -25,4 +25,22 @@ export class BloodpressureService {
     );
   }
 
+updateBloodpressure(
+  id: string,
+  dto: BloodpressureRequestDto
+): Observable<void> {
+
+  return this.http.put<void>(
+    `${this.baseUrl}/${id}`,
+    dto
+  );
+}
+
+deleteBloodpressure(id: string): Observable<void> {
+
+  return this.http.delete<void>(
+    `${this.baseUrl}/${id}`
+  );
+}
+
 }

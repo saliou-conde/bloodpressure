@@ -1,0 +1,10 @@
+docker system prune -af
+mvn clean compile package -DskipTests
+
+docker build -t sconde87/bloodpressure-backend:latest .
+docker push sconde87/bloodpressure-backend:latest
+
+docker build --no-cache -t sconde87/bloodpressure-frontend:latest .
+docker build -t sconde87/bloodpressure-frontend:latest .
+docker push sconde87/bloodpressure-frontend:latest
+

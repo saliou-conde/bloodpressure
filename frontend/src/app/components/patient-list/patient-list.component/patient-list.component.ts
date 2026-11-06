@@ -8,21 +8,91 @@ import { BloodpressureService } from '../../../services/bloodpressure/bloodpress
 import { PatientService } from '../../../services/patient/patient.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { BaseChartDirective } from 'ng2-charts';
+import {
+  ChartConfiguration,
+  ChartData,
+  Chart, registerables
+} from 'chart.js';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-patient-list',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    BaseChartDirective
+  ],
   templateUrl: './patient-list.component.html',
   styleUrls: ['./patient-list.component.css']
 })
 export class PatientListComponent implements OnInit {
   patients: PatientViewModel[] = [];
   loadingPatients = false;
+  creatingBloodpressure = false;
+  loading = false;
 
   selectedPatient: PatientViewModel | null = null;
   bloodpressures: BloodpressureResponseDto[] = [];
   loadingBloodpressures = false;
+  editingBloodpressureId: string | null = null;
+
+  public lineChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Systole',
+        data: [],
+        borderColor: 'rgb(54, 162, 235)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        tension: 0.3
+      },
+      {
+        label: 'Diastole',
+        data: [],
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        tension: 0.3
+      }
+    ]
+  };
+
+  public lineChartOptions: ChartConfiguration<'line'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true
+      }
+    }
+  };
+
+
+  private updateChart(): void {
+
+    this.lineChartData = {
+      labels: this.bloodpressures.map(bp =>
+        new Date(bp.createdAt).toLocaleDateString()
+      ),
+
+      datasets: [
+        {
+          label: 'Systole',
+          data: this.bloodpressures.map(bp => bp.systole),
+          borderColor: 'rgb(54,162,235)',
+          backgroundColor: 'rgba(54,162,235,0.2)',
+          tension: 0.3
+        },
+        {
+          label: 'Diastole',
+          data: this.bloodpressures.map(bp => bp.diastole),
+          borderColor: 'rgb(255,99,132)',
+          backgroundColor: 'rgba(255,99,132,0.2)',
+          tension: 0.3
+        }
+      ]
+    };
+  }
 
   // Neues Patient-Formular
   newPatient: PatientRequestDto = {
@@ -43,9 +113,12 @@ export class PatientListComponent implements OnInit {
   constructor(
     private patientService: PatientService,
     private bpService: BloodpressureService
-  ) {}
+  ) {
+      Chart.register(...registerables);
+    }
 
   ngOnInit(): void {
+    Chart.register(...registerables);
     this.loadPatients();
   }
 
@@ -61,6 +134,40 @@ export class PatientListComponent implements OnInit {
         }
       });
   }
+
+  getStatus(bp: BloodpressureResponseDto): string {
+
+    if (bp.systole >= 180 || bp.diastole >= 120) {
+      return '🔴 Hypertensive Crisis';
+    }
+
+    if (bp.systole >= 140 || bp.diastole >= 90) {
+      return '🟠 High Blood Pressure';
+    }
+
+    if (bp.systole >= 120 && bp.diastole < 80) {
+      return '🟡 Elevated';
+    }
+
+    return '🟢 Normal';
+  }
+
+getStatusClass(bp: BloodpressureResponseDto): string {
+
+  if (bp.systole >= 180 || bp.diastole >= 120) {
+    return 'badge bg-danger';
+  }
+
+  if (bp.systole >= 140 || bp.diastole >= 90) {
+    return 'badge bg-warning text-dark';
+  }
+
+  if (bp.systole >= 120 && bp.diastole < 80) {
+    return 'badge bg-info text-dark';
+  }
+
+  return 'badge bg-success';
+}
 
   selectPatient(p: PatientViewModel): void {
     if (this.selectedPatient?.id === p.id) {
@@ -88,8 +195,13 @@ export class PatientListComponent implements OnInit {
     this.bpService.getByPatientId(p.id)
       .pipe(finalize(() => (this.loadingBloodpressures = false)))
       .subscribe({
-        next: (bps) => this.bloodpressures = bps,
-        error: (err) => { console.error(err); this.bloodpressures = []; }
+        next: (bps) => {
+          this.bloodpressures = bps;
+          this.updateChart();
+        },
+        error: (err) => {
+          console.error(err); this.bloodpressures = [];
+        }
       });
   }
 
@@ -140,62 +252,90 @@ export class PatientListComponent implements OnInit {
     heartRate: 0
   };
 
-  creatingBloodpressure = false;
+editBloodpressure(bp: BloodpressureResponseDto): void {
+  this.editingBloodpressureId = bp.id;
 
-  createBloodpressure(): void {
+  this.newBloodpressure = {
+    systole: bp.systole,
+    diastole: bp.diastole,
+    heartRate: bp.heartRate
+  };
+}
 
+deleteBloodpressure(id: string): void {
+
+  if (!confirm('Delete this blood pressure measurement?')) {
+    return;
+  }
+
+  this.bpService.deleteBloodpressure(id)
+    .subscribe({
+      next: () => {
+
+        this.bloodpressures =
+          this.bloodpressures.filter(bp => bp.id !== id);
+
+        this.updateChart();
+      },
+      error: err => console.error(err)
+    });
+}
+
+
+  saveBloodpressure(): void {
     if (!this.selectedPatient) {
       return;
     }
 
     if (
-      this.newBloodpressure.systole <= 0 ||
-      this.newBloodpressure.diastole <= 0 ||
-      this.newBloodpressure.heartRate <= 0
-    ) {
-      return;
-    }
+        this.newBloodpressure.systole <= 0 ||
+        this.newBloodpressure.diastole <= 0 ||
+        this.newBloodpressure.heartRate <= 0
+      ) {
+        return;
+      }
 
     const request: BloodpressureRequestDto = {
       patientId: this.selectedPatient.id,
       systole: this.newBloodpressure.systole,
       diastole: this.newBloodpressure.diastole,
-      heartRate: this.newBloodpressure.heartRate,
-      map: null
+      heartRate: this.newBloodpressure.heartRate
     };
 
-    this.creatingBloodpressure = true;
+    const request$: Observable<unknown> = this.editingBloodpressureId
+      ? this.bpService.updateBloodpressure(this.editingBloodpressureId, request)
+      : this.bpService.createBloodpressure(request);
 
-    this.bpService.createBloodpressure(request)
-      .pipe(finalize(() => {
-        this.creatingBloodpressure = false;
-      }))
+    request$
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
       .subscribe({
+        next: () => {
+          this.editingBloodpressureId = null;
 
-        next: (createdBloodpressure) => {
-
-          // Neue Messung direkt zur Tabelle hinzufügen
-          this.bloodpressures = [
-            createdBloodpressure,
-            ...this.bloodpressures
-          ];
-
-          // Formular zurücksetzen
           this.newBloodpressure = {
             systole: 0,
             diastole: 0,
             heartRate: 0
           };
 
+          this.bpService.getByPatientId(this.selectedPatient!.id).subscribe({
+            next: (measurements) => {
+              this.bloodpressures = measurements;
+              this.updateChart();
+            },
+            error: (err: unknown) => {
+              console.error('Fehler beim Laden der Blutdruckwerte:', err);
+            }
+          });
         },
-
-        error: (err) => {
-          console.error(
-            'Fehler beim Erstellen der Blutdruckmessung',
-            err
-          );
+        error: (err: unknown) => {
+          console.error('Fehler beim Speichern des Blutdruckwerts:', err);
         }
-
       });
   }
+
 }
