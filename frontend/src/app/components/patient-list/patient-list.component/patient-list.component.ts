@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BloodpressureResponseDto } from '../../../models/bloodpressure-response-dto';
 import { BloodpressureRequestDto } from '../../../models/bloodpressure-request-dto';
@@ -67,14 +67,11 @@ export class PatientListComponent implements OnInit {
     }
   };
 
-
   private updateChart(): void {
-
     this.lineChartData = {
       labels: this.bloodpressures.map(bp =>
         new Date(bp.createdAt).toLocaleDateString()
       ),
-
       datasets: [
         {
           label: 'Systole',
@@ -94,7 +91,6 @@ export class PatientListComponent implements OnInit {
     };
   }
 
-  // Neues Patient-Formular
   newPatient: PatientRequestDto = {
     firstName: '',
     lastName: '',
@@ -112,62 +108,63 @@ export class PatientListComponent implements OnInit {
 
   constructor(
     private patientService: PatientService,
-    private bpService: BloodpressureService
+    private bpService: BloodpressureService,
+    private cdr: ChangeDetectorRef
   ) {
-      Chart.register(...registerables);
-    }
+    Chart.register(...registerables);
+  }
 
   ngOnInit(): void {
-    Chart.register(...registerables);
     this.loadPatients();
   }
 
   loadPatients(): void {
     this.loadingPatients = true;
     this.patientService.getAllPatients()
-      .pipe(finalize(() => (this.loadingPatients = false)))
+      .pipe(finalize(() => {
+        this.loadingPatients = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
-        next: (data) => (this.patients = data),
+        next: (data) => {
+          this.patients = [...data];
+          this.cdr.detectChanges();
+        },
         error: (err) => {
           console.error(err);
+          this.loadingPatients = false;
           this.patients = [];
+          this.cdr.detectChanges();
+          console.log('Fehler beim Laden der Patientenliste:', err);
         }
       });
   }
 
   getStatus(bp: BloodpressureResponseDto): string {
-
     if (bp.systole >= 180 || bp.diastole >= 120) {
       return '🔴 Hypertensive Crisis';
     }
-
     if (bp.systole >= 140 || bp.diastole >= 90) {
       return '🟠 High Blood Pressure';
     }
-
     if (bp.systole >= 120 && bp.diastole < 80) {
       return '🟡 Elevated';
     }
-
     return '🟢 Normal';
   }
 
-getStatusClass(bp: BloodpressureResponseDto): string {
-
-  if (bp.systole >= 180 || bp.diastole >= 120) {
-    return 'badge bg-danger';
+  getStatusClass(bp: BloodpressureResponseDto): string {
+    if (bp.systole >= 180 || bp.diastole >= 120) {
+      return 'badge bg-danger';
+    }
+    if (bp.systole >= 140 || bp.diastole >= 90) {
+      return 'badge bg-warning text-dark';
+    }
+    if (bp.systole >= 120 && bp.diastole < 80) {
+      return 'badge bg-info text-dark';
+    }
+    return 'badge bg-success';
   }
-
-  if (bp.systole >= 140 || bp.diastole >= 90) {
-    return 'badge bg-warning text-dark';
-  }
-
-  if (bp.systole >= 120 && bp.diastole < 80) {
-    return 'badge bg-info text-dark';
-  }
-
-  return 'badge bg-success';
-}
 
   selectPatient(p: PatientViewModel): void {
     if (this.selectedPatient?.id === p.id) {
@@ -176,31 +173,25 @@ getStatusClass(bp: BloodpressureResponseDto): string {
     }
     this.selectedPatient = p;
     this.bloodpressures = [];
-
-    if (p.bloodpressureRequestDtoList && p.bloodpressureRequestDtoList.length > 0) {
-      this.bloodpressures = p.bloodpressureRequestDtoList.map((r, idx) => ({
-        id: `tmp-${idx}`,
-        systole: r.systole,
-        diastole: r.diastole,
-        heartRate: r.heartRate,
-        map: r.map ?? null,
-        createdAt: new Date().toISOString(),
-        updatedAt: null,
-        isDeleted: false
-      }));
-      return;
-    }
-
     this.loadingBloodpressures = true;
+    this.cdr.detectChanges();
+
     this.bpService.getByPatientId(p.id)
-      .pipe(finalize(() => (this.loadingBloodpressures = false)))
+      .pipe(finalize(() => {
+        this.loadingBloodpressures = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (bps) => {
           this.bloodpressures = bps;
           this.updateChart();
+          this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error(err); this.bloodpressures = [];
+          console.error(err);
+          this.bloodpressures = [];
+          this.loadingBloodpressures = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -208,6 +199,7 @@ getStatusClass(bp: BloodpressureResponseDto): string {
   clearSelection(): void {
     this.selectedPatient = null;
     this.bloodpressures = [];
+    this.cdr.detectChanges();
   }
 
   formatName(p: PatientViewModel): string {
@@ -223,7 +215,10 @@ getStatusClass(bp: BloodpressureResponseDto): string {
       return;
     this.creatingPatient = true;
     this.patientService.createPatient(this.newPatient)
-      .pipe(finalize(() => (this.creatingPatient = false)))
+      .pipe(finalize(() => {
+        this.creatingPatient = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: () => {
           this.newPatient = {
@@ -238,62 +233,59 @@ getStatusClass(bp: BloodpressureResponseDto): string {
               state: '',
               zipCode: ''
             }
-      };
+          };
           this.loadPatients();
         },
-        error: (err) => console.error('Fehler beim Erstellen', err)
+        error: (err) => {
+          console.error('Fehler beim Erstellen', err);
+          this.creatingPatient = false;
+          this.cdr.detectChanges();
+        }
       });
   }
 
-  // Neues Blutdruckformular
   newBloodpressure = {
     systole: 0,
     diastole: 0,
     heartRate: 0
   };
 
-editBloodpressure(bp: BloodpressureResponseDto): void {
-  this.editingBloodpressureId = bp.id;
-
-  this.newBloodpressure = {
-    systole: bp.systole,
-    diastole: bp.diastole,
-    heartRate: bp.heartRate
-  };
-}
-
-deleteBloodpressure(id: string): void {
-
-  if (!confirm('Delete this blood pressure measurement?')) {
-    return;
+  editBloodpressure(bp: BloodpressureResponseDto): void {
+    this.editingBloodpressureId = bp.id;
+    this.newBloodpressure = {
+      systole: bp.systole,
+      diastole: bp.diastole,
+      heartRate: bp.heartRate
+    };
+    this.cdr.detectChanges();
   }
 
-  this.bpService.deleteBloodpressure(id)
-    .subscribe({
-      next: () => {
-
-        this.bloodpressures =
-          this.bloodpressures.filter(bp => bp.id !== id);
-
-        this.updateChart();
-      },
-      error: err => console.error(err)
-    });
-}
-
+  deleteBloodpressure(id: string): void {
+    if (!confirm('Delete this blood pressure measurement?')) {
+      return;
+    }
+    this.bpService.deleteBloodpressure(id)
+      .subscribe({
+        next: () => {
+          this.bloodpressures = this.bloodpressures.filter(bp => bp.id !== id);
+          this.updateChart();
+          this.cdr.detectChanges();
+        },
+        error: err => console.error(err)
+      });
+  }
 
   saveBloodpressure(): void {
     if (!this.selectedPatient) {
       return;
     }
-
     if (
-        this.newBloodpressure.systole <= 0 ||
-        this.newBloodpressure.diastole <= 0 ||
-        this.newBloodpressure.heartRate <= 0
-      ) {
-        return;
-      }
+      this.newBloodpressure.systole <= 0 ||
+      this.newBloodpressure.diastole <= 0 ||
+      this.newBloodpressure.heartRate <= 0
+    ) {
+      return;
+    }
 
     const request: BloodpressureRequestDto = {
       patientId: this.selectedPatient.id,
@@ -302,6 +294,9 @@ deleteBloodpressure(id: string): void {
       heartRate: this.newBloodpressure.heartRate
     };
 
+    this.creatingBloodpressure = true;
+    this.cdr.detectChanges();
+
     const request$: Observable<unknown> = this.editingBloodpressureId
       ? this.bpService.updateBloodpressure(this.editingBloodpressureId, request)
       : this.bpService.createBloodpressure(request);
@@ -309,33 +304,32 @@ deleteBloodpressure(id: string): void {
     request$
       .pipe(
         finalize(() => {
-          this.loading = false;
+          this.creatingBloodpressure = false;
+          this.cdr.detectChanges();
         })
       )
       .subscribe({
         next: () => {
           this.editingBloodpressureId = null;
-
           this.newBloodpressure = {
             systole: 0,
             diastole: 0,
             heartRate: 0
           };
-
           this.bpService.getByPatientId(this.selectedPatient!.id).subscribe({
-            next: (measurements) => {
-              this.bloodpressures = measurements;
+            next: (bps) => {
+              this.bloodpressures = bps;
               this.updateChart();
+              this.cdr.detectChanges();
             },
-            error: (err: unknown) => {
-              console.error('Fehler beim Laden der Blutdruckwerte:', err);
-            }
+            error: (err) => console.error(err)
           });
         },
-        error: (err: unknown) => {
-          console.error('Fehler beim Speichern des Blutdruckwerts:', err);
+        error: (err) => {
+          console.error(err);
+          this.creatingBloodpressure = false;
+          this.cdr.detectChanges();
         }
       });
   }
-
 }

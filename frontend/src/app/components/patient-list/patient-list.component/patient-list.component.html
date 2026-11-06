@@ -31,6 +31,11 @@
     </div>
 
     <div class="col-lg-6">
+      <!-- Falls Sie die klassische Struktur nutzen: -->
+      <div *ngIf="loadingPatients" class="spinner-border" role="status">
+        <!-- Spinner-Inhalt -->
+      </div>
+
       @if (loadingPatients) {
       <div class="text-center my-3">
         <div class="spinner-border" role="status"></div>
