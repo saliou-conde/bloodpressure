@@ -244,6 +244,19 @@ export class PatientListComponent implements OnInit {
       });
   }
 
+ cancelEdit(): void {
+
+   this.editingBloodpressureId = null;
+
+   this.newBloodpressure = {
+     systole: 0,
+     diastole: 0,
+     heartRate: 0
+   };
+
+   this.cdr.detectChanges();
+ }
+
   newBloodpressure = {
     systole: 0,
     diastole: 0,

@@ -93,10 +93,19 @@
   <div class="card p-3 mt-3">
 
     <h5 class="text-primary mb-3">
+      @if (editingBloodpressureId) {
+      Edit Bloodpressure Measurement
+      } @else {
       Add Bloodpressure Measurement
+      }
     </h5>
 
     <form (ngSubmit)="saveBloodpressure()">
+      @if (editingBloodpressureId) {
+      <div class="alert alert-warning py-2 mb-3">
+        ✏️ Editing existing measurement
+      </div>
+      }
 
       <div class="row">
 
@@ -149,6 +158,15 @@
 
       </button>
 
+      @if (editingBloodpressureId) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm ms-2"
+        (click)="cancelEdit()">
+        Cancel
+      </button>
+      }
+
     </form>
 
   </div>
@@ -170,7 +188,7 @@
     </thead>
     <tbody>
     @for (bp of bloodpressures; track bp.id; let i = $index) {
-    <tr>
+    <tr [class.table-warning]="editingBloodpressureId === bp.id">
       <td>{{ i + 1 }}</td>
       <td>{{ bp.createdAt | date: 'short' }}</td>
       <td>{{ bp.systole }}</td>
@@ -191,6 +209,7 @@
         </button>
 
         <button
+          type="button"
           class="btn btn-sm btn-outline-danger"
           (click)="deleteBloodpressure(bp.id)">
           🗑 Delete
