@@ -34,7 +34,6 @@ public class BloodpressureServiceImpl implements BloodpressureService {
     public List<BloodpressureResponseDto> getBloodpressure() {
         return bloodpressureRepository.findAllByIsDeletedFalse()
                 .stream()
-                .peek(bp -> log.debug("Including Bloodpressure id: {}", bp.getId()))
                 .map(bloodpressureMapper::fromBloodpressure)
                 .toList();
     }
@@ -121,7 +120,6 @@ public class BloodpressureServiceImpl implements BloodpressureService {
     }
 
     private int calculateMap(int systole, int diastole) {
-        double result = Math.round((2.0 * diastole + systole) / 3.0);
-        return (int) result;
+        return (2 * diastole + systole + 1) / 3;
     }
 }

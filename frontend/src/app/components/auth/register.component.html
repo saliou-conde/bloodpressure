@@ -1,0 +1,90 @@
+<div class="container mt-5" style="max-width: 450px;">
+  <div class="card p-4 shadow-sm">
+    <h2 class="mb-3 text-primary text-center">Register</h2>
+
+    @if (errorMessage) {
+    <div class="alert alert-danger py-2 mb-3">
+      {{ errorMessage }}
+    </div>
+    }
+
+    <form (ngSubmit)="onRegister()">
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Choose a username"
+          [(ngModel)]="registerData.username"
+          name="username"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          placeholder="name@example.com"
+          [(ngModel)]="registerData.email"
+          name="email"
+          required>
+      </div>
+
+      <!-- Passwort Feld mit Auge -->
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            placeholder="Choose a secure password"
+            [(ngModel)]="registerData.password"
+            name="password"
+            required>
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="togglePassword()">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Passwort bestätigen Feld mit Auge -->
+      <div class="mb-3">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-group">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="form-control"
+            placeholder="Confirm your password"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            required>
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="toggleConfirmPassword()">
+            {{ showConfirmPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100 mb-3" [disabled]="loading">
+        @if (loading) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        Creating account...
+        } @else {
+        Register
+        }
+      </button>
+
+      <div class="text-center">
+        <small class="text-muted">
+          Already have an account? <a routerLink="/login">Login here</a>
+        </small>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { BloodpressureResponseDto } from '../../../models/bloodpressure-response-dto';
 import { BloodpressureRequestDto } from '../../../models/bloodpressure-request-dto';
@@ -15,6 +16,7 @@ import {
   Chart, registerables
 } from 'chart.js';
 import { Observable } from 'rxjs';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-patient-list',
@@ -109,13 +111,20 @@ export class PatientListComponent implements OnInit {
   constructor(
     private patientService: PatientService,
     private bpService: BloodpressureService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router
   ) {
     Chart.register(...registerables);
   }
 
   ngOnInit(): void {
     this.loadPatients();
+  }
+
+  logout(): void {
+    this.authService.logout(); // Löscht das Token aus dem localStorage
+    this.router.navigate(['/login']); // Leitet zurück zum Login weiter
   }
 
   loadPatients(): void {
