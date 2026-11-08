@@ -5,6 +5,7 @@ import ch.bloodpressure.domain.Role;
 import ch.bloodpressure.dto.LoginRequest;
 import ch.bloodpressure.dto.LoginResponse;
 import ch.bloodpressure.dto.RegisterRequest;
+import ch.bloodpressure.dto.ResetPasswordRequest;
 import ch.bloodpressure.exception.BPUserAlreadyExistException;
 import ch.bloodpressure.exception.BPUserNotFoundException;
 import ch.bloodpressure.repository.BPUserRepository;
@@ -22,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final String USER_NOT_FOUND_WITH_USERNAME = "User not found with username: ";
     private final AuthenticationManager authenticationManager;
     private final BPUserRepository bpUserRepository;
     private final JwtService jwtService;
@@ -41,7 +43,7 @@ public class AuthService {
 
 
         var user = findByUsername(request.username())
-                .orElseThrow(() -> new BPUserNotFoundException("User not found with username: " + request.username()));
+                .orElseThrow(() -> new BPUserNotFoundException(USER_NOT_FOUND_WITH_USERNAME + request.username()));
 
         var userDetails = getUserDetails(user);
 
@@ -67,6 +69,26 @@ public class AuthService {
         var jwtToken =
                 jwtService.generateToken(userDetails);
         return new LoginResponse(jwtToken);
+    }
+
+    @Transactional
+    public void deleteUser(String username) {
+        var user = findByUsername(username)
+                .orElseThrow(() -> new BPUserNotFoundException(USER_NOT_FOUND_WITH_USERNAME + username));
+        bpUserRepository.delete(user);
+    }
+
+    @Transactional
+    public LoginResponse resetPassword(ResetPasswordRequest request) {
+        var username = request.username();
+        var user = findByUsername(username)
+                .orElseThrow(() -> new BPUserNotFoundException(USER_NOT_FOUND_WITH_USERNAME + username));
+        if(!user.getEmail().equals(request.email())) {
+            throw new BPUserNotFoundException("Email does not match for user: " + username);
+        }
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        bpUserRepository.save(user);
+        return new LoginResponse(jwtService.generateToken(getUserDetails(user)));
     }
 
     private UserDetails getUserDetails(BPUser user) {
