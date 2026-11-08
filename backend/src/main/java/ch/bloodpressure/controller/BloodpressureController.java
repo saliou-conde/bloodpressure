@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,9 @@ public class BloodpressureController {
             }
     )
     @PostMapping
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR', 'NURSE')"
+    )
     public ResponseEntity<BloodpressureResponseDto> addBloodpressure(@RequestBody @Valid BloodpressureRequestDto requestDto) {
         return ResponseEntity.ok(bloodpressureService.addBloodpressure(requestDto));
     }
@@ -49,6 +53,9 @@ public class BloodpressureController {
             }
     )
     @GetMapping
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR','NURSE')"
+    )
     public ResponseEntity<List<BloodpressureResponseDto>> getBloodpressureMeasurements() {
         return ResponseEntity.ok(bloodpressureService.getBloodpressure());
     }
@@ -64,6 +71,9 @@ public class BloodpressureController {
             }
     )
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR','NURSE')"
+    )
     public ResponseEntity<List<BloodpressureResponseDto>> getBloodpressureMeasurementsByPatientId(@PathVariable("patientId") String patientId) {
         return ResponseEntity.ok(bloodpressureService.getBloodpressureMeasurementsByPatientId(patientId));
     }
@@ -83,6 +93,9 @@ public class BloodpressureController {
             }
     )
     @GetMapping("/{id}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR','NURSE')"
+    )
     public ResponseEntity<BloodpressureResponseDto> getBloodpressureById(@PathVariable("id") String id) {
         return ResponseEntity.ok(bloodpressureService.getBloodpressure( id));
     }
@@ -106,6 +119,9 @@ public class BloodpressureController {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR')"
+    )
     public ResponseEntity<Void> updateBloodpressure(@PathVariable("id") String id, @RequestBody @Valid BloodpressureRequestDto requestDto) {
         bloodpressureService.updateBloodpressure(requestDto, id);
         return ResponseEntity.accepted().build();
@@ -126,6 +142,9 @@ public class BloodpressureController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR')"
+    )
     public ResponseEntity<Void> deleteBloodpressure(@PathVariable("id") String id) {
         bloodpressureService.deleteBloodpressure(id);
         return ResponseEntity.accepted().build();

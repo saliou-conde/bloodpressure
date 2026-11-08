@@ -13,7 +13,12 @@ public class CorsConfig {
             "http://localhost:3000", // Angular Dev
             "https://bloodpressure.ch", // Productive
             "https://www.bloodpressure.ch", // Productive
-            "http://139.162.135.188:3000" // Angular Linode Server
+            "http://139.162.135.188:3000" ,// Angular Linode Server
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/api/v1/auth/login",
+            "/api/v1/auth/register"
     };
 
     @Bean

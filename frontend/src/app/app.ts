@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PatientListComponent } from './components/patient-list/patient-list.component/patient-list.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, PatientListComponent],
+  imports: [RouterOutlet, FormsModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

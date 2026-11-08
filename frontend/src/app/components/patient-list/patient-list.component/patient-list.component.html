@@ -1,5 +1,12 @@
 <div class="container mt-4">
-  <h2 class="mb-3 text-primary">Patient overview</h2>
+
+  <!-- NEU: Überschrift und Logout-Button in einem Flexbox-Container -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-primary m-0">Patient overview</h2>
+    <button class="btn btn-outline-danger btn-sm" (click)="logout()">
+      🚪 Logout
+    </button>
+  </div>
 
   <div class="row">
     <!-- Patientenliste -->
@@ -31,11 +38,6 @@
     </div>
 
     <div class="col-lg-6">
-      <!-- Falls Sie die klassische Struktur nutzen: -->
-      <div *ngIf="loadingPatients" class="spinner-border" role="status">
-        <!-- Spinner-Inhalt -->
-      </div>
-
       @if (loadingPatients) {
       <div class="text-center my-3">
         <div class="spinner-border" role="status"></div>
@@ -83,10 +85,10 @@
     </div>
   </div>
   }
-    @if (loadingBloodpressures) {
-    <div class="text-center my-3">
-      <div class="spinner-border" role="status"></div>
-    </div>
+  @if (loadingBloodpressures) {
+  <div class="text-center my-3">
+    <div class="spinner-border" role="status"></div>
+  </div>
   }
 
   @if (selectedPatient) {
@@ -245,10 +247,5 @@
   <div class="alert alert-info mt-3 mb-0">
     No measurements found.
   </div>
-  } @else {
-  <table class="table table-striped mt-3">
-    <!-- e.g. @for (bp of bloodpressures; track bp.id) { … } -->
-  </table>
   }
 </div>
-

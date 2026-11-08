@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,9 @@ public class PatientController {
             }
     )
     @PostMapping
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR')"
+    )
     public ResponseEntity<PatientResponseDto> createPatient(@Valid @RequestBody PatientRequestDto requestDto) {
         return ResponseEntity.status(CREATED).body(patientService.createPatient(requestDto));
     }
@@ -53,6 +57,9 @@ public class PatientController {
             }
     )
     @GetMapping
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR','NURSE')"
+    )
     public ResponseEntity<List<PatientResponseDto>> getPatients() {
         return ResponseEntity.ok(patientService.getPatients());
     }
@@ -72,6 +79,9 @@ public class PatientController {
             }
     )
     @GetMapping("/{id}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR','NURSE')"
+    )
     public ResponseEntity<PatientResponseDto> getPatient(@PathVariable("id") String id) {
         return ResponseEntity.ok(patientService.getPatient(id));
     }
@@ -95,6 +105,9 @@ public class PatientController {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','DOCTOR')"
+    )
     public ResponseEntity<Void> updatePatient(@PathVariable("id") String id, @Valid @RequestBody PatientRequestDto requestDto) {
         patientService.updatePatient(requestDto, id);
         return ResponseEntity.accepted().build();
@@ -115,6 +128,9 @@ public class PatientController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN')"
+    )
     public ResponseEntity<Void> deletePatient(@PathVariable("id") String id) {
         patientService.deletePatient(id);
         return ResponseEntity.accepted().build();
