@@ -30,6 +30,9 @@
           name="password"
           required>
       </div>
+      <div class="mb-3 text-end">
+        <small><a routerLink="/forgot-password">Forgot password?</a></small>
+      </div>
 
       <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="loading">
         @if (loading) {

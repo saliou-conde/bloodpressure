@@ -18,6 +18,12 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface ResetPasswordRequest {
+  username: string;
+  email: string;
+  newPassword: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,6 +41,18 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data).pipe(
       tap(response => this.saveToken(response.token))
     );
+  }
+
+  // In auth.service.ts
+
+  // 1. Passwort-Reset anfordern (E-Mail senden)
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  // 2. Neues Passwort mit Token abspeichern
+  resetPassword(request: ResetPasswordRequest): Observable<LoginResponse> {
+    return this.http.put<LoginResponse>(`${this.apiUrl}/reset-password`, request);
   }
 
   saveToken(token: string): void {

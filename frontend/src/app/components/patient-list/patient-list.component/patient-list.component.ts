@@ -156,7 +156,7 @@ export class PatientListComponent implements OnInit {
     if (bp.systole >= 140 || bp.diastole >= 90) {
       return '🟠 High Blood Pressure';
     }
-    if (bp.systole >= 120 && bp.diastole < 80) {
+    if (bp.systole >= 135 || bp.diastole >= 85) {
       return '🟡 Elevated';
     }
     return '🟢 Normal';
@@ -169,7 +169,7 @@ export class PatientListComponent implements OnInit {
     if (bp.systole >= 140 || bp.diastole >= 90) {
       return 'badge bg-warning text-dark';
     }
-    if (bp.systole >= 120 && bp.diastole < 80) {
+    if (bp.systole >= 135 || bp.diastole >= 85) {
       return 'badge bg-info text-dark';
     }
     return 'badge bg-success';
