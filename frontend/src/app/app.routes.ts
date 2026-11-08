@@ -7,16 +7,15 @@ import { ForgotPasswordComponent } from './components/auth/forgot-password.compo
 import { ResetPasswordComponent } from './components/auth/reset-password.component';
 
 export const routes: Routes = [
-    {
-      path: 'login',
-      component: LoginComponent,
-      canActivate: [guestGuard] // Wenn eingeloggt, hier nicht rein
-    },
-    {
-      path: 'register', component: RegisterComponent,
-      canActivate: [guestGuard] // Wenn eingeloggt, hier nicht rein
-    },
-    // ... deine bestehenden Routen (login, register, patients, etc.)
+      {
+        path: 'login',
+        component: LoginComponent,
+        canActivate: [guestGuard] // Wenn eingeloggt, hier nicht rein
+      },
+      {
+        path: 'register', component: RegisterComponent,
+        canActivate: [guestGuard] // Wenn eingeloggt, hier nicht rein
+      },
       {
         path: 'forgot-password',
         component: ResetPasswordComponent,
