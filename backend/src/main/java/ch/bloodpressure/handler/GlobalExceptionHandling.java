@@ -22,13 +22,14 @@ import static org.springframework.http.HttpStatus.*;
 public class GlobalExceptionHandling {
 
     private static final String BLOODPRESSURE_NOT_FOUND_BY_ID = "Bloodpressure does not exist in the database";
-    private static final String PATIENT_NOT_FOUND_BY_ID = "Patient does not exist in the database";
+
     private static final String PATIENT_EMAIL_ALREADY_EXISTS = "Patient email already exists in the database";
+    private static final String PATIENT_NOT_FOUND_BY_ID = "Patient does not exist in the database";
+
     private static final String BP_USER_EMAIL_ALREADY_EXISTS = "BPUser email already exists in the database";
     private static final String BP_USER_NOT_FOUND_BY_USERNAME = "BPUser does not exist in the database";
     private static final String BP_USER_OR_PASSWORD_INVALID = "Username or password is invalid";
 
-    // --- NEUER HANDLER FÜR 401 UNAUTHORIZED ---
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<ProblemDetail> handleBadCredentialsException(Exception ex) {
         return generateResponseEntity(ex.getMessage(), UNAUTHORIZED, BP_USER_OR_PASSWORD_INVALID);
@@ -37,6 +38,11 @@ public class GlobalExceptionHandling {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ProblemDetail> handleNullPointerException(NullPointerException ex) {
         return generateResponseEntity( ex.getMessage(), INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountDeletionNotAllowedException.class)
+    public ResponseEntity<ProblemDetail> handleDeleteNotAllowedException(AccountDeletionNotAllowedException ex) {
+        return generateResponseEntity( ex.getMessage(), FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(BPUserNotFoundException.class)
@@ -72,7 +78,7 @@ public class GlobalExceptionHandling {
 
     @ExceptionHandler(EmailAlreadyExistException.class)
     public ResponseEntity<ProblemDetail> handlePatientEmailAlreadyExistException(EmailAlreadyExistException ex) {
-        return generateResponseEntity( ex.getMessage(), BAD_REQUEST, PATIENT_EMAIL_ALREADY_EXISTS);
+        return generateResponseEntity( ex.getMessage(), CONFLICT, PATIENT_EMAIL_ALREADY_EXISTS);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -80,7 +86,6 @@ public class GlobalExceptionHandling {
         var errors = new HashMap<String, Object>();
         exception.getBindingResult().getFieldErrors().forEach(fieldError ->
                 errors.put(fieldError.getField(), fieldError.getDefaultMessage()));
-        exception.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         String message = "Validation failed for request body. Please check the input values.";
         var status = BAD_REQUEST;

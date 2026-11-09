@@ -8,6 +8,7 @@ import ch.bloodpressure.dto.RegisterRequest;
 import ch.bloodpressure.dto.ResetPasswordRequest;
 import ch.bloodpressure.exception.BPUserAlreadyExistException;
 import ch.bloodpressure.exception.BPUserNotFoundException;
+import ch.bloodpressure.exception.AccountDeletionNotAllowedException;
 import ch.bloodpressure.repository.BPUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,22 +31,17 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public LoginResponse authenticate(
-            LoginRequest request
-    ) {
+    public LoginResponse authenticate(LoginRequest request) {
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.username(),
-                        request.password()
-                )
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
 
         var user = findByUsername(request.username())
                 .orElseThrow(() -> new BPUserNotFoundException(USER_NOT_FOUND_WITH_USERNAME + request.username()));
 
-        var userDetails = getUserDetails(user);
+        var userDetails = AuthServiceUtils.getUserDetails(user);
 
         return new LoginResponse(jwtService.generateToken(userDetails));
     }
@@ -54,7 +50,6 @@ public class AuthService {
     public LoginResponse register(RegisterRequest request) {
 
         var user = findByUsername(request.username());
-
         if(user.isPresent()) {
             throw new BPUserAlreadyExistException("User already exists with username: " + request.username());
         }
@@ -65,16 +60,18 @@ public class AuthService {
         newUser.setPassword(passwordEncoder.encode(request.password()));
         newUser.setRole(Role.NURSE);
         var savedUser = bpUserRepository.save(newUser);
-        UserDetails userDetails = getUserDetails(savedUser);
-        var jwtToken =
-                jwtService.generateToken(userDetails);
-        return new LoginResponse(jwtToken);
+
+        UserDetails userDetails = AuthServiceUtils.getUserDetails(savedUser);
+        return new LoginResponse(jwtService.generateToken(userDetails));
     }
 
     @Transactional
     public void deleteUser(String username) {
         var user = findByUsername(username)
                 .orElseThrow(() -> new BPUserNotFoundException(USER_NOT_FOUND_WITH_USERNAME + username));
+        if(AuthServiceUtils.isAdminUser(user)) {
+            throw new AccountDeletionNotAllowedException("Cannot delete user with role: " + user.getRole());
+        }
         bpUserRepository.delete(user);
     }
 
@@ -88,21 +85,31 @@ public class AuthService {
         }
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         bpUserRepository.save(user);
-        return new LoginResponse(jwtService.generateToken(getUserDetails(user)));
-    }
-
-    private UserDetails getUserDetails(BPUser user) {
-        return org.springframework.security.core.userdetails.User
-                        .builder()
-                        .username(user.getUsername())
-                        .password(user.getPassword())
-                        .roles(user.getRole().name())
-                        .build();
+        return new LoginResponse(jwtService.generateToken(AuthServiceUtils.getUserDetails(user)));
     }
 
     private Optional<BPUser> findByUsername(String username) {
         return bpUserRepository
                 .findByUsername(username);
+    }
+
+    /**
+     * Utility class for authentication-related operations.
+     */
+    private static final  class AuthServiceUtils {
+
+        public static boolean isAdminUser(BPUser user) {
+            return user.getRole() == Role.ADMIN || user.getRole() == Role.SUPER_ADMIN;
+        }
+
+        public static UserDetails getUserDetails(BPUser user) {
+            return org.springframework.security.core.userdetails.User
+                    .builder()
+                    .username(user.getUsername())
+                    .password(user.getPassword())
+                    .roles(user.getRole().name())
+                    .build();
+        }
     }
 
 }
